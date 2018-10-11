@@ -1,0 +1,43 @@
+workspace:
+  base: /go
+  path: src/github.com/Depado/thundermonit
+
+clone:
+  git:
+    image: plugins/git
+    tags: true
+
+pipeline:
+  build with modules:
+    image: "golang:latest"
+    pull: true
+    commands:
+      - go version
+      - go build
+    environment:
+      - GO111MODULE=on
+
+  build with dep:
+    image: "golang:latest"
+    commands:
+      - go version
+      - go get -u github.com/golang/dep/cmd/dep
+      - dep ensure
+      - go build
+    environment:
+      - GO111MODULE=off
+
+  test:
+    image: "golang:latest"
+    commands:
+      - make test
+    environment:
+      - GO111MODULE=on
+
+  linter:
+    image: "golang:latest"
+    commands:
+      - go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+      - golangci-lint run -D errcheck
+    environment:
+      - GO111MODULE=off
