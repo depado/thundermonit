@@ -6,6 +6,11 @@ import (
 	"github.com/Depado/thundermonit/domain"
 )
 
+const (
+	serviceName = "service"
+	serviceDesc = "A type that describes a single service"
+)
+
 // Simple query with a single int64 ID inside
 type idQuery struct {
 	ID int64 `graphql:"id"`
@@ -14,8 +19,8 @@ type idQuery struct {
 // RegisterService registers the Service struct and methods to the schema
 func (r RequestHandler) RegisterService(s *schemabuilder.Schema) {
 	// Object registration
-	obj := s.Object("service", domain.Service{})
-	obj.Description = "A type that describes a single service"
+	obj := s.Object(serviceName, domain.Service{})
+	obj.Description = serviceDesc
 	obj.FieldFunc("repo", func(s *domain.Service) (*domain.Repo, error) {
 		return r.Interactor.GetRepo(s)
 	})

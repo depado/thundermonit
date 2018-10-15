@@ -6,11 +6,16 @@ import (
 	"github.com/Depado/thundermonit/domain"
 )
 
+const (
+	repoName = "repo"
+	repoDesc = "A type that describes a repository associated to a service"
+)
+
 // RegisterRepo registers the Repo struct to the Schema
 func (rh RequestHandler) RegisterRepo(s *schemabuilder.Schema) {
 	// Object registration
-	obj := s.Object("repo", domain.Repo{})
-	obj.Description = "A type that describes a repository associated to a service"
+	obj := s.Object(repoName, domain.Repo{})
+	obj.Description = repoDesc
 
 	// Queries registration
 	q := s.Query()
