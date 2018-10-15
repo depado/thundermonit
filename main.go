@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -42,26 +41,20 @@ var versionCmd = &cobra.Command{
 	Run:   func(cmd *cobra.Command, args []string) { fmt.Printf("Build: %s\nVersion: %s\n", Build, Version) },
 }
 
-var schemaCmd = &cobra.Command{
-	Use:   "schema",
-	Short: "Generate and write the schema.json file on disk",
-	Run: func(cmd *cobra.Command, args []string) {
-		var err error
-		var output []byte
-		requestHandler := graphqlabs.RequestHandler{Interactor: uc.NewInteractor(storer.NewMemoryStorer())}
-		builder := schemabuilder.NewSchema()
-		requestHandler.RegisterRepo(builder)
-		requestHandler.RegisterService(builder)
-		requestHandler.RegisterCI(builder)
-		introspection.AddIntrospectionToSchema(builder.MustBuild())
-		if output, err = introspection.ComputeSchemaJSON(*builder); err != nil {
-			logrus.WithError(err).Fatal("Couldn't compute the schema to JSON")
-		}
-		if err = ioutil.WriteFile("schema.json", output, 0644); err != nil {
-			logrus.WithError(err).Fatal("Couldn't write the schema on disk")
-		}
-		logrus.WithField("file", "schema.json").Info("Computed and built the schema")
-	},
+func main() {
+	// Initialize Cobra and Viper
+	cobra.OnInitialize(cmd.Initialize)
+	cmd.AddLoggerFlags(rootCmd)
+	cmd.AddConfigurationFlag(rootCmd)
+	cmd.AddServerFlags(rootCmd)
+	cmd.AddSchemaFlags(cmd.SchemaCmd)
+	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(cmd.SchemaCmd)
+
+	// Run the command
+	if err := rootCmd.Execute(); err != nil {
+		logrus.WithError(err).Fatal("Couldn't start")
+	}
 }
 
 func run() {
@@ -105,20 +98,5 @@ func run() {
 	r.StaticFS("/graphiql/", graphiqlfs)
 	if err = r.Run(":3030"); err != nil {
 		logrus.WithError(err).Fatal("Couldn't start server")
-	}
-}
-
-func main() {
-	// Initialize Cobra and Viper
-	cobra.OnInitialize(cmd.Initialize)
-	cmd.AddLoggerFlags(rootCmd)
-	cmd.AddConfigurationFlag(rootCmd)
-	cmd.AddServerFlags(rootCmd)
-	rootCmd.AddCommand(versionCmd)
-	rootCmd.AddCommand(schemaCmd)
-
-	// Run the command
-	if err := rootCmd.Execute(); err != nil {
-		logrus.WithError(err).Fatal("Couldn't start")
 	}
 }

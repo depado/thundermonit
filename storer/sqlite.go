@@ -10,6 +10,8 @@ type sqliteStorer struct {
 	db *gorm.DB
 }
 
+// NewSQLiteStorer will return a new Storer which will use an SQLite database
+// to store/create/modify objects
 func NewSQLiteStorer(db *gorm.DB) uc.Storer {
 	return sqliteStorer{
 		db: db,

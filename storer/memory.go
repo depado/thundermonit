@@ -10,6 +10,8 @@ type memoryStorer struct {
 	m map[int64]*domain.Service
 }
 
+// NewMemoryStorer returns a new in memory storer that will fetch/create/modify
+// items directly in memory instead of in a database
 func NewMemoryStorer(ss ...*domain.Service) uc.Storer {
 	m := memoryStorer{
 		m: make(map[int64]*domain.Service),

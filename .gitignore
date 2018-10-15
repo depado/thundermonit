@@ -1,3 +1,3 @@
 thundermonit
 vendor/
-schema.json
+*.json
